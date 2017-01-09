@@ -49,7 +49,7 @@ health = 6;
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>if(health &gt; 1) {
+            <string>if(health &gt; 0) {
     image_index = health;
 }
 else {

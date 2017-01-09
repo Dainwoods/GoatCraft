@@ -25,7 +25,103 @@
         <arguments>
           <argument>
             <kind>1</kind>
-            <string></string>
+            <string>alarm1 = true;
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="2" enumb="1">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>///Chooses the event
+alarm1 = true;
+
+odds = irandom_range(1, TOTAL_EVENTS);
+if(odds == 1) {
+    rain();
+}
+else if(odds == 2) {
+    bomb(5);
+} 
+else if(odds == 3) {
+    bomb(3);
+}
+//Earthquake
+//Floor is lava
+//More bombs
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="3" enumb="0">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>///Spawn pointBlocks
+if(!instance_exists(obj_pointBlock)) {
+    tempXCoord = random_range(0, 1024);
+    tempYCoord = random_range(45, 768); //Can't spawn on top layer and is less likely to spawn on second layer.
+    xCoord = tempXCoord - (tempXCoord mod(32)) + 16;
+    yCoord = tempYCoord - (tempYCoord mod(32)) + 16;
+    if(!position_meeting(xCoord, yCoord, obj_wall) &amp;&amp; yCoord &gt; 64) {
+        instance_create(xCoord, yCoord, obj_pointBlock);
+    }
+}
+</string>
+          </argument>
+        </arguments>
+      </action>
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>///After 30 seconds, will trigger some kind of event every 30 seconds.
+if(alarm1) {
+    alarm1 = false;
+    alarm[1] = 15 * room_speed;
+}
+</string>
           </argument>
         </arguments>
       </action>

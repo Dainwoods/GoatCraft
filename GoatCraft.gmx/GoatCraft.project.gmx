@@ -4,31 +4,77 @@
     <Config>Configs\Default</Config>
   </Configs>
   <NewExtensions/>
-  <sounds name="sound"/>
+  <sounds name="sound">
+    <sound>sound\music_happy</sound>
+    <sound>sound\snd_coin</sound>
+    <sound>sound\snd_fallDamage</sound>
+    <sound>sound\snd_destroyBlock</sound>
+    <sound>sound\snd_buildBlock</sound>
+  </sounds>
   <sprites name="sprites">
     <sprite>sprites\spr_player</sprite>
-    <sprite>sprites\spr_buildingBlock</sprite>
-    <sprite>sprites\spr_wall</sprite>
-    <sprite>sprites\spr_preBuilding</sprite>
-    <sprite>sprites\spr_preDestroy</sprite>
-    <sprite>sprites\spr_placeHolder</sprite>
+    <sprites name="Blocks">
+      <sprites name="Building Blocks">
+        <sprite>sprites\spr_buildingBlock</sprite>
+        <sprite>sprites\spr_preBuilding</sprite>
+        <sprite>sprites\spr_preDestroy</sprite>
+        <sprite>sprites\spr_placeHolder</sprite>
+      </sprites>
+      <sprite>sprites\spr_wall</sprite>
+    </sprites>
     <sprite>sprites\spr_pointBlock</sprite>
     <sprite>sprites\spr_health</sprite>
+    <sprite>sprites\spr_gg</sprite>
+    <sprites name="Events">
+      <sprites name="Rain">
+        <sprite>sprites\spr_clouds</sprite>
+        <sprite>sprites\spr_rain</sprite>
+      </sprites>
+      <sprites name="Bombs">
+        <sprite>sprites\spr_5x5Bomb</sprite>
+        <sprite>sprites\spr_3x3Bomb</sprite>
+        <sprite>sprites\spr_4WayBomb</sprite>
+        <sprites name="3WayBombs">
+          <sprite>sprites\spr_3WayNoDown</sprite>
+          <sprite>sprites\spr_3WayNoUp</sprite>
+          <sprite>sprites\spr_3WayNoLeft</sprite>
+          <sprite>sprites\spr_3WayNoRight</sprite>
+        </sprites>
+        <sprites name="2WayBombs">
+          <sprite>sprites\spr1_2WayUpRight</sprite>
+          <sprite>sprites\spr_2WayUpLeft</sprite>
+          <sprite>sprites\spr_2WayUpDown</sprite>
+          <sprite>sprites\spr_2WayRightLeft</sprite>
+          <sprite>sprites\spr_2WayRightDown</sprite>
+          <sprite>sprites\spr_2WayLeftDown</sprite>
+        </sprites>
+        <sprites name="1WayBombs">
+          <sprite>sprites\spr_1WayUp</sprite>
+          <sprite>sprites\spr_1WayLeft</sprite>
+          <sprite>sprites\spr_1WayRight</sprite>
+          <sprite>sprites\spr_1WayDown</sprite>
+        </sprites>
+        <sprite>sprites\spr_explosion</sprite>
+      </sprites>
+    </sprites>
   </sprites>
   <backgrounds name="background">
     <background>background\bg_gameOver</background>
+    <background>background\bg_title</background>
+    <background>background\bg_play</background>
+    <background>background\bg_playRain</background>
   </backgrounds>
   <paths name="paths"/>
   <scripts name="scripts">
     <script>scripts\gameOver.gml</script>
+    <script>scripts\rain.gml</script>
+    <script>scripts\bomb.gml</script>
   </scripts>
-  <shaders name="shaders"/>
   <fonts name="fonts">
     <font>fonts\f_score</font>
   </fonts>
   <objects name="objects">
     <object>objects\obj_player</object>
-    <object>objects\obj_testPlayer</object>
     <object>objects\obj_buildingBlock</object>
     <object>objects\obj_wall</object>
     <object>objects\obj_preBuilding</object>
@@ -38,11 +84,26 @@
     <object>objects\obj_scoreControl</object>
     <object>objects\obj_eventHandler</object>
     <object>objects\obj_health</object>
+    <object>objects\obj_gg</object>
+    <object>objects\obj_ggno</object>
+    <object>objects\obj_clouds</object>
+    <object>objects\obj_rain</object>
+    <object>objects\obj_5x5Bomb</object>
+    <object>objects\obj_explosion</object>
+    <object>objects\obj_explosion2</object>
+    <object>objects\par_walkable</object>
+    <object>objects\obj_3x3Bomb</object>
   </objects>
   <rooms name="rooms">
-    <room>rooms\room1</room>
+    <room>rooms\room_play</room>
     <room>rooms\room_gameOver</room>
+    <room>rooms\room_title</room>
   </rooms>
+  <constants number="3">
+    <constant name="CLOUD_SPEED">.5</constant>
+    <constant name="TOTAL_EVENTS">2</constant>
+    <constant name="BOMB_EVENTS">1</constant>
+  </constants>
   <help>
     <rtf>help.rtf</rtf>
   </help>

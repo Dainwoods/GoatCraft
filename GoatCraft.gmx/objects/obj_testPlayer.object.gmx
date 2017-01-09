@@ -33,6 +33,36 @@ vsp = 0;
 jumpSpeed = 7;
 moveSpeed = 4;
 maxHeight = 999999;
+
+audioEm = audio_emitter_create();
+image_speed = 0;
+
+test = 0;
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="2" enumb="0">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>if(image_index == 16) {
+    image_speed = .2;
+}
 </string>
           </argument>
         </arguments>
@@ -61,7 +91,8 @@ key_right = keyboard_check(ord("D"));
 key_left = -keyboard_check(ord("A"));
 key_jump = keyboard_check_pressed(vk_space);
 
-show_debug_message(obj_testPlayer.y);
+isJumping = false;
+
 //If the current height is greater than the maxHeight, this is the top
 if(obj_testPlayer.y &lt; maxHeight) {
     maxHeight = obj_testPlayer.y;
@@ -73,15 +104,19 @@ else if(vsp == 0) {
     //Under 5 blocks deals no damage, 5-10 deals 1, 10-15 deals 2, 15-20 deals 3, 20+ deals 4
     if(distance &gt; 639) { //(32 * 20) - 1
         health -= 4;
+        audio_play_sound(snd_fallDamage, 11, false);
     }
     else if(distance &gt; 479) { //(32 * 15) - 1
         health -= 3;
+        audio_play_sound(snd_fallDamage, 11, false);
     }
     else if(distance &gt; 319) { //(32 * 10) - 1
         health -= 2;
+        audio_play_sound(snd_fallDamage, 11, false);
     }
     else if(distance &gt; 159) { //(32 * 5) - 1
         health--;
+        audio_play_sound(snd_fallDamage, 11, false);
     }
 }
 
@@ -97,9 +132,11 @@ if(vsp &lt; 10) {
 //Player can only jump while on a wall or building block
 if(place_meeting(x, y + 1, obj_wall)) {
     vsp = key_jump * -jumpSpeed;
+    isJumping = true;
 }
 if(place_meeting(x, y + 1, obj_buildingBlock)) {
     vsp = key_jump * -jumpSpeed;
+    isJumping = true;
 }
 
 //If there is a wall/block to the right/left and player is moving in that direction,
@@ -135,6 +172,43 @@ if(place_meeting(x, y + vsp, obj_buildingBlock)) {
 y += vsp;
 
 move_wrap(true, false, 10);
+
+//Standing still
+if(move == 0 &amp;&amp; vsp == 0) {
+    if(image_index &lt; 16 || image_index &gt; 20) {
+        image_index = 16;
+        alarm[0] = room_speed;
+    }
+    else if(image_index == 20) {
+        image_index = 16;
+        image_speed = .2;
+    }
+}
+//Moving right
+else if(move &gt; 0 &amp;&amp; vsp == 0) {
+    if(image_index &lt; 8 || image_index == 15) {
+        image_index = 8;
+    }
+    image_speed = .2;
+}
+//Moving left
+else if(move &lt; 0 &amp;&amp; vsp == 0) {
+    if(image_index &gt;= 7 || image_index &gt; 15) {
+        image_index = 0;
+    }
+    image_speed = .2;
+}
+//Jumping
+else if(isJumping) {
+    image_index = 16;
+}
+//Falling
+else if(vsp != 0) {
+    image_index = 16;
+}
+
+test++;
+show_debug_message(test);
 </string>
           </argument>
         </arguments>
@@ -159,7 +233,7 @@ move_wrap(true, false, 10);
 //checks if right button is pressed
 if(mouse_check_button_pressed(mb_right) &amp;&amp; mouse_y &gt; 64) {
     //checks if mouse is hovering over a buildingBlock, player, or wall
-    if(!position_meeting(mouse_x, mouse_y, obj_buildingBlock) &amp;&amp; !position_meeting(mouse_x, mouse_y, obj_testPlayer) &amp;&amp; !position_meeting(mouse_x, mouse_y, obj_wall) &amp;&amp; !position_meeting(mouse_x, mouse_y, obj_pointBlock)) {
+    if(!position_meeting(mouse_x, mouse_y, obj_buildingBlock) &amp;&amp; !position_meeting(mouse_x, mouse_y, obj_testPlayer) &amp;&amp; !position_meeting(mouse_x, mouse_y, obj_wall)) {
         //centers buildingBlock at the center of the block mouse is in.
         tempXBlock = mouse_x;
         tempYBlock = mouse_y;
@@ -169,26 +243,26 @@ if(mouse_check_button_pressed(mb_right) &amp;&amp; mouse_y &gt; 64) {
         //creates an x and y variable for the top right corner of the player 
         //object that is located at the center of the block the top left corner 
         //is located in.
-        tempXPlayerTR = obj_testPlayer.x + 7;
-        tempYPlayerTR = obj_testPlayer.y - 15;
+        tempXPlayerTR = obj_testPlayer.x + ((bbox_right + 1 - bbox_left) / 2);
+        tempYPlayerTR = obj_testPlayer.y - ((bbox_bottom + 1 - bbox_top) / 2);
         newXPlayerTR = tempXPlayerTR - (tempXPlayerTR mod(32)) + 16;
         newYPlayerTR = tempYPlayerTR - (tempYPlayerTR mod(32)) + 16;
         
         //top left corner of the player object
-        tempXPlayerTL = obj_testPlayer.x - 7;
-        tempYPlayerTL = obj_testPlayer.y - 15;
+        tempXPlayerTL = obj_testPlayer.x - ((bbox_right + 1 - bbox_left) / 2);
+        tempYPlayerTL = obj_testPlayer.y - ((bbox_bottom + 1 - bbox_top) / 2);
         newXPlayerTL = tempXPlayerTL - (tempXPlayerTL mod(32)) + 16;
         newYPlayerTL = tempYPlayerTL - (tempYPlayerTL mod(32)) + 16;
         
         //bottom right corner of the player object
-        tempXPlayerBR = obj_testPlayer.x + 7;
-        tempYPlayerBR = obj_testPlayer.y + 14;
+        tempXPlayerBR = obj_testPlayer.x + ((bbox_right + 1 - bbox_left) / 2);
+        tempYPlayerBR = obj_testPlayer.y + ((bbox_bottom + 1 - bbox_top) / 2);
         newXPlayerBR = tempXPlayerBR - (tempXPlayerBR mod(32)) + 16;
         newYPlayerBR = tempYPlayerBR - (tempYPlayerBR mod(32)) + 16;
         
         //bottom left corner of the player object
-        tempXPlayerBL = obj_testPlayer.x - 7;
-        tempYPlayerBL = obj_testPlayer.y + 14;
+        tempXPlayerBL = obj_testPlayer.x - ((bbox_right + 1 - bbox_left) / 2);
+        tempYPlayerBL = obj_testPlayer.y + ((bbox_bottom + 1 - bbox_top) / 2);
         newXPlayerBL = tempXPlayerBL - (tempXPlayerBL mod(32)) + 16;
         newYPlayerBL = tempYPlayerBL - (tempYPlayerBL mod(32)) + 16;
         
@@ -198,9 +272,16 @@ if(mouse_check_button_pressed(mb_right) &amp;&amp; mouse_y &gt; 64) {
             if(newXBlock != newXPlayerTL || newYBlock != newYPlayerTL) {
                 if(newXBlock != newXPlayerBR || newYBlock != newYPlayerBR) {
                     if(newXBlock != newXPlayerBL || newYBlock != newYPlayerBL) {
-                        //checks that player is within 100 units of the new block
-                        if(sqrt( sqr(newXBlock - obj_testPlayer.x) + sqr(newYBlock - obj_testPlayer.y) ) &lt; 100) {
-                            instance_create(newXBlock, newYBlock, obj_buildingBlock);
+                        //Checks if there is a point block
+                        if(!position_meeting(newXBlock, newYBlock, obj_pointBlock)) {
+                            //checks that player is within 100 units of the new block
+                            if(sqrt( sqr(newXBlock - obj_testPlayer.x) + sqr(newYBlock - obj_testPlayer.y) ) &lt; 100) {
+                                instance_create(newXBlock, newYBlock, obj_buildingBlock);
+                            
+                                audio_emitter_pitch(audioEm, random_range(1.4, 1.8));
+                                audio_play_sound_on(audioEm, snd_buildBlock, false, 12);
+                            
+                            }
                         }
                     }
                 }
@@ -232,7 +313,7 @@ if(mouse_check_button_pressed(mb_right) &amp;&amp; mouse_y &gt; 64) {
 //checks that no mouse buttons are being pressed and there are no other preBuilding objects
 if(!mouse_check_button_pressed(mb_any) &amp;&amp; instance_number(obj_preBuilding) = 0 &amp;&amp; mouse_y &gt; 64){
     //checks if mouse is hovering over a buildingBlock, player, wall, or preBuilding
-    if(!position_meeting(mouse_x, mouse_y, obj_buildingBlock) &amp;&amp; !position_meeting(mouse_x, mouse_y, obj_testPlayer) &amp;&amp; !position_meeting(mouse_x, mouse_y, obj_wall) &amp;&amp; !position_meeting(mouse_x, mouse_y, obj_pointBlock)) {
+    if(!position_meeting(mouse_x, mouse_y, obj_buildingBlock) &amp;&amp; !position_meeting(mouse_x, mouse_y, obj_testPlayer) &amp;&amp; !position_meeting(mouse_x, mouse_y, obj_wall)) {
         //centers preBuilding at the center of the block mouse is in.
         tempXBlock = mouse_x;
         tempYBlock = mouse_y;
@@ -242,26 +323,26 @@ if(!mouse_check_button_pressed(mb_any) &amp;&amp; instance_number(obj_preBuildin
         //creates an x and y variable for the top right corner of the player 
         //object that is located at the center of the block the top left corner 
         //is located in.
-        tempXPlayerTR = obj_testPlayer.x + 7;
-        tempYPlayerTR = obj_testPlayer.y - 15;
+        tempXPlayerTR = obj_testPlayer.x + ((bbox_right + 1 - bbox_left) / 2);
+        tempYPlayerTR = obj_testPlayer.y - ((bbox_bottom + 1 - bbox_top) / 2);
         newXPlayerTR = tempXPlayerTR - (tempXPlayerTR mod(32)) + 16;
         newYPlayerTR = tempYPlayerTR - (tempYPlayerTR mod(32)) + 16;
         
         //top left corner of the player object
-        tempXPlayerTL = obj_testPlayer.x - 7;
-        tempYPlayerTL = obj_testPlayer.y - 15;
+        tempXPlayerTL = obj_testPlayer.x - ((bbox_right + 1 - bbox_left) / 2);
+        tempYPlayerTL = obj_testPlayer.y - ((bbox_bottom + 1 - bbox_top) / 2);
         newXPlayerTL = tempXPlayerTL - (tempXPlayerTL mod(32)) + 16;
         newYPlayerTL = tempYPlayerTL - (tempYPlayerTL mod(32)) + 16;
         
         //bottom right corner of the player object
-        tempXPlayerBR = obj_testPlayer.x + 7;
-        tempYPlayerBR = obj_testPlayer.y + 14;
+        tempXPlayerBR = obj_testPlayer.x + ((bbox_right + 1 - bbox_left) / 2);
+        tempYPlayerBR = obj_testPlayer.y + ((bbox_bottom + 1 - bbox_top) / 2);
         newXPlayerBR = tempXPlayerBR - (tempXPlayerBR mod(32)) + 16;
         newYPlayerBR = tempYPlayerBR - (tempYPlayerBR mod(32)) + 16;
         
         //bottom left corner of the player object
-        tempXPlayerBL = obj_testPlayer.x - 7;
-        tempYPlayerBL = obj_testPlayer.y + 14;
+        tempXPlayerBL = obj_testPlayer.x - ((bbox_right + 1 - bbox_left) / 2);
+        tempYPlayerBL = obj_testPlayer.y + ((bbox_bottom + 1 - bbox_top) / 2);
         newXPlayerBL = tempXPlayerBL - (tempXPlayerBL mod(32)) + 16;
         newYPlayerBL = tempYPlayerBL - (tempYPlayerBL mod(32)) + 16;
         
@@ -270,13 +351,15 @@ if(!mouse_check_button_pressed(mb_any) &amp;&amp; instance_number(obj_preBuildin
         if(newXBlock != newXPlayerTR || newYBlock != newYPlayerTR) {
             if(newXBlock != newXPlayerTL || newYBlock != newYPlayerTL) {
                 if(newXBlock != newXPlayerBR || newYBlock != newYPlayerBR) {
-                    if(newXBlock != newXPlayerBL || newYBlock != newYPlayerBL) { 
-                        //checks if distance from player to center of block is less than 100
-                        if(sqrt( sqr(newXBlock - obj_testPlayer.x) + sqr(newYBlock - obj_testPlayer.y) ) &lt; 100) {
-                            instance_create(newXBlock, newYBlock, obj_preBuilding);
-                        }
-                        else{
-                            instance_create(newXBlock, newYBlock, obj_placeHolder);
+                    if(newXBlock != newXPlayerBL || newYBlock != newYPlayerBL) {
+                        if(!position_meeting(newXBlock, newYBlock, obj_pointBlock)) { 
+                            //checks if distance from player to center of block is less than 100
+                            if(sqrt( sqr(newXBlock - obj_testPlayer.x) + sqr(newYBlock - obj_testPlayer.y) ) &lt; 100) {
+                                instance_create(newXBlock, newYBlock, obj_preBuilding);
+                            }
+                            else{
+                                instance_create(newXBlock, newYBlock, obj_placeHolder);
+                            }
                         }
                     }
                 }
@@ -360,37 +443,9 @@ if(mouse_check_button_pressed(mb_left)) {
             with instance_place(newXBlock, newYBlock, obj_buildingBlock) {
                 instance_destroy();
             }
+            audio_emitter_pitch(audioEm, random_range(.4, .8));
+            audio_play_sound_on(audioEm, snd_destroyBlock, false, 11);
         }
-    }
-}
-</string>
-          </argument>
-        </arguments>
-      </action>
-      <action>
-        <libid>1</libid>
-        <id>603</id>
-        <kind>7</kind>
-        <userelative>0</userelative>
-        <isquestion>0</isquestion>
-        <useapplyto>-1</useapplyto>
-        <exetype>2</exetype>
-        <functionname></functionname>
-        <codestring></codestring>
-        <whoName>self</whoName>
-        <relative>0</relative>
-        <isnot>0</isnot>
-        <arguments>
-          <argument>
-            <kind>1</kind>
-            <string>///Spawn pointBlocks
-if(!instance_exists(obj_pointBlock)) {
-    tempXCoord = random_range(0, 1024);
-    tempYCoord = random_range(45, 768); //Can't spawn on top layer and is less likely to spawn on second layer.
-    xCoord = tempXCoord - (tempXCoord mod(32)) + 16;
-    yCoord = tempYCoord - (tempYCoord mod(32)) + 16;
-    if(!position_meeting(xCoord, yCoord, obj_wall) &amp;&amp; yCoord &gt; 64) {
-        instance_create(xCoord, yCoord, obj_pointBlock);
     }
 }
 </string>
@@ -430,7 +485,28 @@ if(!instance_exists(obj_pointBlock)) {
           <argument>
             <kind>1</kind>
             <string>score++;
+audio_play_sound(snd_coin, 10, false);
 </string>
+          </argument>
+        </arguments>
+      </action>
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string></string>
           </argument>
         </arguments>
       </action>

@@ -32,6 +32,177 @@ hsp = 0;
 vsp = 0;
 jumpSpeed = 7;
 moveSpeed = 4;
+maxHeight = 999999;
+
+audioEm = audio_emitter_create();
+image_speed = 0;
+
+//Is true if damage from rain was taken in the last second(timing unsure)
+tookRainDamage = false;
+//Took damage from a bomb that deals one heart of damage
+tookBombDamage1 = false; 
+//Took damage from a bomb that deals two heart of damage
+tookBombDamage2 = false;
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="2" enumb="5">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>tookBombDamage1 = false;
+tookBombDamage2 = false;
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="2" enumb="4">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>///Handles damage from 2 heart damage bombs
+if(!tookBombDamage2) {
+    tookBombDamage1 = true;
+    tookBombDamage2 = true;
+    health -= 4;
+    alarm[5] = room_speed;
+}
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="2" enumb="3">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>///Handles damage from 1 heart health damage bombs
+if(!tookBombDamage1) {
+    tookBombDamage1 = true;
+    tookBombDamage2 = true;
+    health -= 2;
+    alarm[5] = room_speed;
+}
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="2" enumb="2">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>///FLips rain damage boolean variable
+tookRainDamage = false;
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="2" enumb="1">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>///Handles rain damage
+if(!tookRainDamage) {
+    health--;
+    alarm[2] = room_speed;
+    tookRainDamage = true;
+}
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="2" enumb="0">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>//Buffer time for idle animation
+if(image_index == 16) {
+    image_speed = .2;
+}
 </string>
           </argument>
         </arguments>
@@ -60,6 +231,35 @@ key_right = keyboard_check(ord("D"));
 key_left = -keyboard_check(ord("A"));
 key_jump = keyboard_check_pressed(vk_space);
 
+isJumping = false;
+
+//If the current height is greater than the maxHeight, this is the top
+if(obj_player.y &lt; maxHeight) {
+    maxHeight = obj_player.y;
+}
+else if(vsp == 0) {
+    distance = obj_player.y - maxHeight;
+    maxHeight = 999999;
+    //32 is size of one block
+    //Under 5 blocks deals no damage, 5-10 deals 1, 10-15 deals 2, 15-20 deals 3, 20+ deals 4
+    if(distance &gt; 639) { //(32 * 20) - 1
+        health -= 4;
+        audio_play_sound(snd_fallDamage, 11, false);
+    }
+    else if(distance &gt; 479) { //(32 * 15) - 1
+        health -= 3;
+        audio_play_sound(snd_fallDamage, 11, false);
+    }
+    else if(distance &gt; 319) { //(32 * 10) - 1
+        health -= 2;
+        audio_play_sound(snd_fallDamage, 11, false);
+    }
+    else if(distance &gt; 159) { //(32 * 5) - 1
+        health--;
+        audio_play_sound(snd_fallDamage, 11, false);
+    }
+}
+
 //React to inputs
 move = key_left + key_right;
 hsp = move * moveSpeed;
@@ -67,24 +267,20 @@ if(vsp &lt; 10) {
     vsp += grav;
 }
 
-//Player can only jump while on a wall or building block
-if(place_meeting(x, y + 1, obj_wall)) {
+
+
+//Player can only jump while on a walkable object
+if(place_meeting(x, y + 1, par_walkable)) {
     vsp = key_jump * -jumpSpeed;
-}
-if(place_meeting(x, y + 1, obj_buildingBlock)) {
-    vsp = key_jump * -jumpSpeed;
+    if(key_jump == 1) {
+        isJumping = true;
+    }
 }
 
 //If there is a wall/block to the right/left and player is moving in that direction,
 //move as far in the direction of the wall/block as possible.
-if(place_meeting(x + hsp, y, obj_wall)) {
-    while(!place_meeting(x + sign(hsp), y, obj_wall)) {
-        x += sign(hsp);
-    }
-    hsp = 0;
-}
-if(place_meeting(x + hsp, y, obj_buildingBlock)) {
-    while(!place_meeting(x + sign(hsp), y, obj_buildingBlock)) {
+if(place_meeting(x + hsp, y, par_walkable)) {
+    while(!place_meeting(x + sign(hsp), y, par_walkable)) {
         x += sign(hsp);
     }
     hsp = 0;
@@ -93,20 +289,15 @@ x += hsp;
 
 //if there is a wall beneath/above player and player is moving in that direction,
 //move as far in the direction of the wall as possible.
-if(place_meeting(x, y + vsp, obj_wall)) {
-    while(!place_meeting(x, y + sign(vsp), obj_wall)) {
-        y += sign(vsp);
-    }
-    vsp = 0;
-}
-if(place_meeting(x, y + vsp, obj_buildingBlock)) {
-    while(!place_meeting(x, y + sign(vsp), obj_buildingBlock)) {
+if(place_meeting(x, y + vsp, par_walkable)) {
+    while(!place_meeting(x, y + sign(vsp), par_walkable)) {
         y += sign(vsp);
     }
     vsp = 0;
 }
 y += vsp;
 
+//Player can wrap horizontally on screen but not vertically
 move_wrap(true, false, 10);
 </string>
           </argument>
@@ -130,40 +321,40 @@ move_wrap(true, false, 10);
             <kind>1</kind>
             <string>///Creates buildingBlocks
 //checks if right button is pressed
-if(mouse_check_button_pressed(mb_right)) {
+if(mouse_check_button_pressed(mb_right) &amp;&amp; mouse_y &gt; 64) {
     //checks if mouse is hovering over a buildingBlock, player, or wall
-    if(!position_meeting(mouse_x, mouse_y, obj_buildingBlock) &amp;&amp; !position_meeting(mouse_x, mouse_y, obj_player) &amp;&amp; !position_meeting(mouse_x, mouse_y, obj_wall) &amp;&amp; !position_meeting(mouse_x, mouse_y, obj_pointBlock)) {
+    if(!position_meeting(mouse_x, mouse_y, obj_buildingBlock) &amp;&amp; !position_meeting(mouse_x, mouse_y, obj_player) &amp;&amp; !position_meeting(mouse_x, mouse_y, obj_wall)) {
         //centers buildingBlock at the center of the block mouse is in.
-        tempXBlock = mouse_x + 16;
-        tempYBlock = mouse_y + 16;
-        newXBlock = tempXBlock - (tempXBlock mod(32));
-        newYBlock = tempYBlock - (tempYBlock mod(32));
+        tempXBlock = mouse_x;
+        tempYBlock = mouse_y;
+        newXBlock = tempXBlock - (tempXBlock mod(32)) + 16;
+        newYBlock = tempYBlock - (tempYBlock mod(32)) + 16;
         
         //creates an x and y variable for the top right corner of the player 
         //object that is located at the center of the block the top left corner 
         //is located in.
-        tempXPlayerTR = obj_player.x + 7 + 16;
-        tempYPlayerTR = obj_player.y - 15 + 16;
-        newXPlayerTR = tempXPlayerTR - (tempXPlayerTR mod(32));
-        newYPlayerTR = tempYPlayerTR - (tempYPlayerTR mod(32));
+        tempXPlayerTR = obj_player.x + ((bbox_right + 1 - bbox_left) / 2);
+        tempYPlayerTR = obj_player.y - ((bbox_bottom + 1 - bbox_top) / 2);
+        newXPlayerTR = tempXPlayerTR - (tempXPlayerTR mod(32)) + 16;
+        newYPlayerTR = tempYPlayerTR - (tempYPlayerTR mod(32)) + 16;
         
         //top left corner of the player object
-        tempXPlayerTL = obj_player.x - 7 + 16;
-        tempYPlayerTL = obj_player.y - 15 + 16;
-        newXPlayerTL = tempXPlayerTL - (tempXPlayerTL mod(32));
-        newYPlayerTL = tempYPlayerTL - (tempYPlayerTL mod(32));
+        tempXPlayerTL = obj_player.x - ((bbox_right + 1 - bbox_left) / 2);
+        tempYPlayerTL = obj_player.y - ((bbox_bottom + 1 - bbox_top) / 2);
+        newXPlayerTL = tempXPlayerTL - (tempXPlayerTL mod(32)) + 16;
+        newYPlayerTL = tempYPlayerTL - (tempYPlayerTL mod(32)) + 16;
         
         //bottom right corner of the player object
-        tempXPlayerBR = obj_player.x + 7 + 16;
-        tempYPlayerBR = obj_player.y + 14 + 16;
-        newXPlayerBR = tempXPlayerBR - (tempXPlayerBR mod(32));
-        newYPlayerBR = tempYPlayerBR - (tempYPlayerBR mod(32));
+        tempXPlayerBR = obj_player.x + ((bbox_right + 1 - bbox_left) / 2);
+        tempYPlayerBR = obj_player.y + ((bbox_bottom + 1 - bbox_top) / 2);
+        newXPlayerBR = tempXPlayerBR - (tempXPlayerBR mod(32)) + 16;
+        newYPlayerBR = tempYPlayerBR - (tempYPlayerBR mod(32)) + 16;
         
         //bottom left corner of the player object
-        tempXPlayerBL = obj_player.x - 7 + 16;
-        tempYPlayerBL = obj_player.y + 14 + 16;
-        newXPlayerBL = tempXPlayerBL - (tempXPlayerBL mod(32));
-        newYPlayerBL = tempYPlayerBL - (tempYPlayerBL mod(32));
+        tempXPlayerBL = obj_player.x - ((bbox_right + 1 - bbox_left) / 2);
+        tempYPlayerBL = obj_player.y + ((bbox_bottom + 1 - bbox_top) / 2);
+        newXPlayerBL = tempXPlayerBL - (tempXPlayerBL mod(32)) + 16;
+        newYPlayerBL = tempYPlayerBL - (tempYPlayerBL mod(32)) + 16;
         
         //checks that the newly created x and y values of the block are not equal to 
         //both the newly created x and y values of any of the player corners.
@@ -171,9 +362,16 @@ if(mouse_check_button_pressed(mb_right)) {
             if(newXBlock != newXPlayerTL || newYBlock != newYPlayerTL) {
                 if(newXBlock != newXPlayerBR || newYBlock != newYPlayerBR) {
                     if(newXBlock != newXPlayerBL || newYBlock != newYPlayerBL) {
-                        //checks that player is within 100 units of the new block
-                        if(sqrt( sqr(newXBlock - obj_player.x) + sqr(newYBlock - obj_player.y) ) &lt; 100) {
-                            instance_create(newXBlock, newYBlock, obj_buildingBlock);
+                        //Checks if there is a point block
+                        if(!position_meeting(newXBlock, newYBlock, obj_pointBlock)) {
+                            //checks that player is within 100 units of the new block
+                            if(sqrt( sqr(newXBlock - obj_player.x) + sqr(newYBlock - obj_player.y) ) &lt; 100) {
+                                instance_create(newXBlock, newYBlock, obj_buildingBlock);
+                            
+                                audio_emitter_pitch(audioEm, random_range(1.4, 1.8));
+                                audio_play_sound_on(audioEm, snd_buildBlock, false, 12);
+                            
+                            }
                         }
                     }
                 }
@@ -203,53 +401,55 @@ if(mouse_check_button_pressed(mb_right)) {
             <kind>1</kind>
             <string>///Creates preBuildings
 //checks that no mouse buttons are being pressed and there are no other preBuilding objects
-if(!mouse_check_button_pressed(mb_any) &amp;&amp; instance_number(obj_preBuilding) = 0){
+if(!mouse_check_button_pressed(mb_any) &amp;&amp; instance_number(obj_preBuilding) = 0 &amp;&amp; mouse_y &gt; 64){
     //checks if mouse is hovering over a buildingBlock, player, wall, or preBuilding
-    if(!position_meeting(mouse_x, mouse_y, obj_buildingBlock) &amp;&amp; !position_meeting(mouse_x, mouse_y, obj_player) &amp;&amp; !position_meeting(mouse_x, mouse_y, obj_wall) &amp;&amp; !position_meeting(mouse_x, mouse_y, obj_pointBlock)) {
+    if(!position_meeting(mouse_x, mouse_y, obj_buildingBlock) &amp;&amp; !position_meeting(mouse_x, mouse_y, obj_player) &amp;&amp; !position_meeting(mouse_x, mouse_y, obj_wall)) {
         //centers preBuilding at the center of the block mouse is in.
-        tempXBlock = mouse_x + 16;
-        tempYBlock = mouse_y + 16;
-        newXBlock = tempXBlock - (tempXBlock mod(32));
-        newYBlock = tempYBlock - (tempYBlock mod(32));
+        tempXBlock = mouse_x;
+        tempYBlock = mouse_y;
+        newXBlock = tempXBlock - (tempXBlock mod(32)) + 16;
+        newYBlock = tempYBlock - (tempYBlock mod(32)) + 16;
         
         //creates an x and y variable for the top right corner of the player 
         //object that is located at the center of the block the top left corner 
         //is located in.
-        tempXPlayerTR = obj_player.x + 7 + 16;
-        tempYPlayerTR = obj_player.y - 15 + 16;
-        newXPlayerTR = tempXPlayerTR - (tempXPlayerTR mod(32));
-        newYPlayerTR = tempYPlayerTR - (tempYPlayerTR mod(32));
+        tempXPlayerTR = obj_player.x + ((bbox_right + 1 - bbox_left) / 2);
+        tempYPlayerTR = obj_player.y - ((bbox_bottom + 1 - bbox_top) / 2);
+        newXPlayerTR = tempXPlayerTR - (tempXPlayerTR mod(32)) + 16;
+        newYPlayerTR = tempYPlayerTR - (tempYPlayerTR mod(32)) + 16;
         
         //top left corner of the player object
-        tempXPlayerTL = obj_player.x - 7 + 16;
-        tempYPlayerTL = obj_player.y - 15 + 16;
-        newXPlayerTL = tempXPlayerTL - (tempXPlayerTL mod(32));
-        newYPlayerTL = tempYPlayerTL - (tempYPlayerTL mod(32));
+        tempXPlayerTL = obj_player.x - ((bbox_right + 1 - bbox_left) / 2);
+        tempYPlayerTL = obj_player.y - ((bbox_bottom + 1 - bbox_top) / 2);
+        newXPlayerTL = tempXPlayerTL - (tempXPlayerTL mod(32)) + 16;
+        newYPlayerTL = tempYPlayerTL - (tempYPlayerTL mod(32)) + 16;
         
         //bottom right corner of the player object
-        tempXPlayerBR = obj_player.x + 7 + 16;
-        tempYPlayerBR = obj_player.y + 14 + 16;
-        newXPlayerBR = tempXPlayerBR - (tempXPlayerBR mod(32));
-        newYPlayerBR = tempYPlayerBR - (tempYPlayerBR mod(32));
+        tempXPlayerBR = obj_player.x + ((bbox_right + 1 - bbox_left) / 2);
+        tempYPlayerBR = obj_player.y + ((bbox_bottom + 1 - bbox_top) / 2);
+        newXPlayerBR = tempXPlayerBR - (tempXPlayerBR mod(32)) + 16;
+        newYPlayerBR = tempYPlayerBR - (tempYPlayerBR mod(32)) + 16;
         
         //bottom left corner of the player object
-        tempXPlayerBL = obj_player.x - 7 + 16;
-        tempYPlayerBL = obj_player.y + 14 + 16;
-        newXPlayerBL = tempXPlayerBL - (tempXPlayerBL mod(32));
-        newYPlayerBL = tempYPlayerBL - (tempYPlayerBL mod(32));
+        tempXPlayerBL = obj_player.x - ((bbox_right + 1 - bbox_left) / 2);
+        tempYPlayerBL = obj_player.y + ((bbox_bottom + 1 - bbox_top) / 2);
+        newXPlayerBL = tempXPlayerBL - (tempXPlayerBL mod(32)) + 16;
+        newYPlayerBL = tempYPlayerBL - (tempYPlayerBL mod(32)) + 16;
         
         //checks that the newly created x and y values of the block are not equal to 
         //both the newly created x and y values of any of the corners.
         if(newXBlock != newXPlayerTR || newYBlock != newYPlayerTR) {
             if(newXBlock != newXPlayerTL || newYBlock != newYPlayerTL) {
                 if(newXBlock != newXPlayerBR || newYBlock != newYPlayerBR) {
-                    if(newXBlock != newXPlayerBL || newYBlock != newYPlayerBL) { 
-                        //checks if distance from player to center of block is less than 100
-                        if(sqrt( sqr(newXBlock - obj_player.x) + sqr(newYBlock - obj_player.y) ) &lt; 100) {
-                            instance_create(newXBlock, newYBlock, obj_preBuilding);
-                        }
-                        else{
-                            instance_create(newXBlock, newYBlock, obj_placeHolder);
+                    if(newXBlock != newXPlayerBL || newYBlock != newYPlayerBL) {
+                        if(!position_meeting(newXBlock, newYBlock, obj_pointBlock)) { 
+                            //checks if distance from player to center of block is less than 100
+                            if(sqrt( sqr(newXBlock - obj_player.x) + sqr(newYBlock - obj_player.y) ) &lt; 100) {
+                                instance_create(newXBlock, newYBlock, obj_preBuilding);
+                            }
+                            else{
+                                instance_create(newXBlock, newYBlock, obj_placeHolder);
+                            }
                         }
                     }
                 }
@@ -282,10 +482,10 @@ if(!mouse_check_button_pressed(mb_any) &amp;&amp; instance_number(obj_preDestroy
     //checks if mouse is hovering over a buildingBlock, player, wall, or preBuilding
     if(position_meeting(mouse_x, mouse_y, obj_buildingBlock)) {
         //centers preBuilding at the center of the block mouse is in.
-        tempXBlock = mouse_x + 16;
-        tempYBlock = mouse_y + 16;
-        newXBlock = tempXBlock - (tempXBlock mod(32));
-        newYBlock = tempYBlock - (tempYBlock mod(32));
+        tempXBlock = mouse_x;
+        tempYBlock = mouse_y;
+        newXBlock = tempXBlock - (tempXBlock mod(32)) + 16;
+        newYBlock = tempYBlock - (tempYBlock mod(32)) + 16;
         //checks if distance from player to center of block is less than 100.
         if(sqrt( sqr(newXBlock - obj_player.x) + sqr(newYBlock - obj_player.y) ) &lt; 140) {
             instance_create(newXBlock, newYBlock, obj_preDestroy);
@@ -323,16 +523,18 @@ if(mouse_check_button_pressed(mb_left)) {
     //checks if mouse is hovering over a buildingBlock
     if(position_meeting(mouse_x, mouse_y, obj_buildingBlock)) {
         //centers mouse at the center of the block mouse is in.
-        tempXBlock = mouse_x + 16;
-        tempYBlock = mouse_y + 16;
-        newXBlock = tempXBlock - (tempXBlock mod(32));
-        newYBlock = tempYBlock - (tempYBlock mod(32));
+        tempXBlock = mouse_x;
+        tempYBlock = mouse_y;
+        newXBlock = tempXBlock - (tempXBlock mod(32)) + 16;
+        newYBlock = tempYBlock - (tempYBlock mod(32)) + 16;
         
         //destroys the buildingBlock that mouse is currently in
         if(sqrt( sqr(newXBlock - obj_player.x) + sqr(newYBlock - obj_player.y) ) &lt; 140) {
             with instance_place(newXBlock, newYBlock, obj_buildingBlock) {
                 instance_destroy();
             }
+            audio_emitter_pitch(audioEm, random_range(.4, .8));
+            audio_play_sound_on(audioEm, snd_destroyBlock, false, 11);
         }
     }
 }
@@ -356,37 +558,37 @@ if(mouse_check_button_pressed(mb_left)) {
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>///Spawn pointBlocks
-if(!instance_exists(obj_pointBlock)) {
-    tempXCoord = random_range(0, 1024) + 16;
-    tempYCoord = random_range(0, 768) + 16;
-    xCoord = tempXCoord - (tempXCoord mod(32));
-    yCoord = tempYCoord - (tempYCoord mod(32));
-    if(!position_meeting(xCoord, yCoord, obj_wall) &amp;&amp; yCoord &gt; 64) {
-        instance_create(xCoord, yCoord, obj_pointBlock);
+            <string>///Player sprite controller
+//Jumping
+if(isJumping) {
+    image_index = 25;
+}
+//Standing still
+else if(move == 0 &amp;&amp; vsp == 0) {
+    if(image_index &lt; 16 || image_index &gt;= 20) {
+        image_index = 16;
     }
+    image_speed= .2;
+}
+//Moving right
+else if(move &gt; 0 &amp;&amp; vsp == 0) {
+    if(image_index &lt; 8 || image_index == 15) {
+        image_index = 8;
+    }
+    image_speed = .2;
+}
+//Moving left
+else if(move &lt; 0 &amp;&amp; vsp == 0) {
+    if(image_index &gt;= 7 || image_index &gt; 15) {
+        image_index = 0;
+    }
+    image_speed = .2;
+}
+//Falling
+else if(vsp != 0) {
+    image_index = 26;
 }
 </string>
-          </argument>
-        </arguments>
-      </action>
-      <action>
-        <libid>1</libid>
-        <id>603</id>
-        <kind>7</kind>
-        <userelative>0</userelative>
-        <isquestion>0</isquestion>
-        <useapplyto>-1</useapplyto>
-        <exetype>2</exetype>
-        <functionname></functionname>
-        <codestring></codestring>
-        <whoName>self</whoName>
-        <relative>0</relative>
-        <isnot>0</isnot>
-        <arguments>
-          <argument>
-            <kind>1</kind>
-            <string></string>
           </argument>
         </arguments>
       </action>
@@ -422,7 +624,9 @@ if(!instance_exists(obj_pointBlock)) {
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>score++;
+            <string>///Increases score and plays sound
+score++;
+audio_play_sound(snd_coin, 10, false);
 </string>
           </argument>
         </arguments>
@@ -447,6 +651,30 @@ if(!instance_exists(obj_pointBlock)) {
             <kind>1</kind>
             <string>///Restart code
 room_restart();
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="9" enumb="49">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>///Decreases health (remove eventually)
+health--;
 </string>
           </argument>
         </arguments>
